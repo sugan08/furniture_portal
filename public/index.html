@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FurniRent - Online Furniture Rental Portal</title>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Demo / Quick Review Bar -->
+  <div class="demo-banner">
+    <div class="demo-banner-left">
+      <span class="demo-banner-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> DEMO MODE</span>
+      <span>Test credentials loaded. Switch profiles with 1 click:</span>
+    </div>
+    <div class="demo-banner-actions">
+      <button class="btn-demo-quick" onclick="loginAsDemo('customer')">
+        <i class="fa-solid fa-user"></i> Login as Customer (John Doe)
+      </button>
+      <button class="btn-demo-quick" onclick="loginAsDemo('admin')">
+        <i class="fa-solid fa-shield-halved"></i> Login as Admin (Rental Admin)
+      </button>
+    </div>
+  </div>
+
+  <!-- Sticky Navbar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="#" class="brand-logo">
+        <i class="fa-solid fa-couch"></i>
+        <span>Furni</span>Rent
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#catalog-section" class="nav-link"><i class="fa-solid fa-layer-group"></i> Catalog</a></li>
+        <li><a href="#how-it-works" class="nav-link"><i class="fa-solid fa-circle-question"></i> How It Works</a></li>
+        <li><a href="#tenure-benefits" class="nav-link"><i class="fa-solid fa-tags"></i> Tenure Savings</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <!-- Cart Button -->
+        <button class="cart-btn" onclick="openCartModal()" id="navCartBtn" title="View Rental Cart">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span>Cart</span>
+          <span class="cart-badge" id="cartBadge" style="display: none;">0</span>
+        </button>
+
+        <!-- Guest Actions -->
+        <div id="authNavGuest" style="display: flex; gap: 8px;">
+          <button class="btn-primary" onclick="openModal('authModal')">
+            <i class="fa-solid fa-right-to-bracket"></i> Sign In / Register
+          </button>
+        </div>
+
+        <!-- Logged-in User Actions -->
+        <div id="authNavUser" style="display: none; align-items: center; gap: 10px;">
+          <button class="btn-outline" id="myRentalsNavBtn" onclick="openMyRentalsModal()" style="display: none;">
+            <i class="fa-solid fa-box"></i> My Rentals
+          </button>
+          
+          <button class="btn-primary" id="adminNavBtn" onclick="openAdminModal()" style="display: none; background: #0f172a; border: 1px solid #334155;">
+            <i class="fa-solid fa-gauge-high"></i> Admin Portal
+          </button>
+
+          <div class="user-menu-btn" title="Logged In">
+            <i class="fa-solid fa-circle-user"></i>
+            <span id="userNameDisplay">User</span>
+            <button onclick="logout()" title="Logout" style="color: var(--danger); margin-left: 6px;">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section with Interactive Calculator -->
+  <section class="hero">
+    <div class="hero-container">
+      <div>
+        <div class="hero-tag">
+          <i class="fa-solid fa-sparkles"></i> Flexible Furniture Subscriptions
+        </div>
+        <h1 class="hero-title">
+          Furnish Your Dream Home <span>Without Buying.</span>
+        </h1>
+        <p class="hero-description">
+          Experience premium living room sofas, ergonomic home office setups, comfortable beds, and dining collections with flexible tenures and 100% refundable deposits.
+        </p>
+
+        <!-- Live Search in Hero -->
+        <div class="hero-search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="heroSearchInput" class="hero-search-input" placeholder="Search for sofas, beds, ergonomic chairs, tables...">
+          <button class="btn-primary" onclick="state.searchQuery = document.getElementById('heroSearchInput').value; document.getElementById('catalog-section').scrollIntoView({behavior: 'smooth'}); fetchFurniture();">
+            Explore
+          </button>
+        </div>
+
+        <!-- Highlights -->
+        <div class="hero-highlights">
+          <div class="hero-highlight-item">
+            <i class="fa-solid fa-truck-fast"></i> Free Delivery & Assembly
+          </div>
+          <div class="hero-highlight-item">
+            <i class="fa-solid fa-shield-check"></i> 100% Refundable Deposit
+          </div>
+          <div class="hero-highlight-item">
+            <i class="fa-solid fa-rotate"></i> Free Annual Relocation
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Interactive Tenure Calculator Card -->
+      <div class="hero-card-preview">
+        <div class="hero-card-title">
+          <span><i class="fa-solid fa-calculator" style="color: #60a5fa;"></i> Instant Tenure Calculator</span>
+          <span style="font-size: 0.75rem; background: rgba(59, 130, 246, 0.3); color: #93c5fd; padding: 2px 8px; border-radius: 9999px;">Live Preview</span>
+        </div>
+        
+        <p style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 14px;">
+          Example: 3-Seater Velvet Sofa (Monthly Rent: ₹799)
+        </p>
+
+        <div class="tenure-pill-group" id="heroTenureGroup">
+          <div class="tenure-pill" data-months="3" onclick="setHeroTenure(3)">
+            <div class="tenure-pill-duration">3 Months</div>
+            <div class="tenure-pill-discount">5% OFF</div>
+          </div>
+          <div class="tenure-pill active" data-months="6" onclick="setHeroTenure(6)">
+            <div class="tenure-pill-duration">6 Months</div>
+            <div class="tenure-pill-discount">10% OFF</div>
+          </div>
+          <div class="tenure-pill" data-months="12" onclick="setHeroTenure(12)">
+            <div class="tenure-pill-duration">12+ Months</div>
+            <div class="tenure-pill-discount">15% OFF</div>
+          </div>
+        </div>
+
+        <div class="hero-calc-box">
+          <div class="calc-row">
+            <span>Base Rent:</span>
+            <span id="heroCalcRate">₹799.00 × 6 mo = ₹4,794.00</span>
+          </div>
+          <div class="calc-row" style="color: #34d399;">
+            <span>Tenure Savings:</span>
+            <span id="heroCalcDiscount">-₹479.00 (10% OFF)</span>
+          </div>
+          <div class="calc-row">
+            <span>Refundable Deposit:</span>
+            <span>₹1,500.00</span>
+          </div>
+          <div class="calc-row total">
+            <span>Total Upfront:</span>
+            <span id="heroCalcTotal">₹5,815.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Portal Section -->
+  <main class="main-content">
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" style="margin-bottom: 50px;">
+      <div class="section-header">
+        <div class="section-subtitle">Simple 4-Step Process</div>
+        <h2 class="section-title">How Furniture Rental Works</h2>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <div class="step-icon-wrap"><i class="fa-solid fa-couch"></i></div>
+          <h3 class="step-title">Choose Your Furniture</h3>
+          <p class="step-text">Explore curated living room, bedroom, dining, and work-from-home collections.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <div class="step-icon-wrap"><i class="fa-solid fa-clock-rotate-left"></i></div>
+          <h3 class="step-title">Select Flexible Tenure</h3>
+          <p class="step-text">Choose 3, 6, or 12+ months. The longer your rental tenure, the higher your monthly discount.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <div class="step-icon-wrap"><i class="fa-solid fa-truck-ramp-box"></i></div>
+          <h3 class="step-title">Free Delivery & Setup</h3>
+          <p class="step-text">Our logistics team delivers and handles complete assembly at your doorstep within 72 hours.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <div class="step-icon-wrap"><i class="fa-solid fa-arrows-rotate"></i></div>
+          <h3 class="step-title">Extend, Swap or Return</h3>
+          <p class="step-text">Easily extend your rental period, swap to new furniture, or return with 100% deposit refund.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tenure Savings Banner -->
+    <section id="tenure-benefits" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #bfdbfe; border-radius: var(--radius-lg); padding: 24px 30px; margin-bottom: 50px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="width: 54px; height: 54px; background: var(--primary); color: #fff; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+          <i class="fa-solid fa-percent"></i>
+        </div>
+        <div>
+          <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--dark); margin-bottom: 4px;">Progressive Tenure Discounts</h3>
+          <p style="color: var(--slate); font-size: 0.92rem;">Enjoy automatic discounts applied directly at checkout as you rent longer:</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <span class="badge" style="background: #fff; border: 1px solid #93c5fd; color: var(--primary); padding: 8px 14px; font-size: 0.85rem;">
+          <i class="fa-solid fa-check"></i> 3 Months: <strong>5% OFF</strong>
+        </span>
+        <span class="badge" style="background: #fff; border: 1px solid #93c5fd; color: var(--primary); padding: 8px 14px; font-size: 0.85rem;">
+          <i class="fa-solid fa-check"></i> 6 Months: <strong>10% OFF</strong>
+        </span>
+        <span class="badge" style="background: var(--primary); color: #fff; padding: 8px 14px; font-size: 0.85rem;">
+          <i class="fa-solid fa-star"></i> 12+ Months: <strong>15% OFF</strong>
+        </span>
+      </div>
+    </section>
+
+    <!-- Furniture Catalog Section -->
+    <section id="catalog-section">
+      <div class="section-header" style="text-align: left; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <div class="section-subtitle">Featured Catalog</div>
+          <h2 class="section-title">Explore Rental Collections</h2>
+        </div>
+        <div class="items-counter" id="itemsCountBadge">Loading...</div>
+      </div>
+
+      <!-- Categories Pills Tabs -->
+      <div class="categories-tabs" id="categoryTabsContainer">
+        <!-- Dynamically rendered -->
+      </div>
+
+      <!-- Catalog Toolbar (Search & Sort) -->
+      <div class="catalog-toolbar">
+        <div class="toolbar-left">
+          <div class="search-input-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="catalogSearchInput" class="filter-search-input" placeholder="Search by name, material, or keyword...">
+          </div>
+        </div>
+
+        <div class="toolbar-right">
+          <label for="sortSelect" style="font-size: 0.85rem; font-weight: 700; color: var(--slate);">Sort by:</label>
+          <select id="sortSelect" class="sort-select">
+            <option value="newest">Newest Arrivals</option>
+            <option value="price_asc">Monthly Rent: Low to High</option>
+            <option value="price_desc">Monthly Rent: High to Low</option>
+            <option value="name_asc">Name: A to Z</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Furniture Items Grid -->
+      <div class="furniture-grid" id="furnitureGrid">
+        <!-- Dynamically rendered cards -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <h3><i class="fa-solid fa-couch" style="color: #60a5fa;"></i> FurniRent</h3>
+        <p>Premium furniture rental portal providing stylish, sustainable, and hassle-free living space solutions on demand.</p>
+        <div style="display: flex; gap: 12px; margin-top: 20px;">
+          <span style="font-size: 0.85rem; color: #94a3b8;"><i class="fa-solid fa-shield-halved" style="color: #34d399;"></i> Certified Safe & Insured</span>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Collections</h4>
+        <ul>
+          <li><a href="javascript:void(0)" onclick="selectCategory('living-room')">Living Room</a></li>
+          <li><a href="javascript:void(0)" onclick="selectCategory('bedroom')">Bedroom</a></li>
+          <li><a href="javascript:void(0)" onclick="selectCategory('dining-room')">Dining Room</a></li>
+          <li><a href="javascript:void(0)" onclick="selectCategory('home-office')">Home Office</a></li>
+          <li><a href="javascript:void(0)" onclick="selectCategory('storage-decor')">Storage & Decor</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Tenure Benefits</h4>
+        <ul>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#tenure-benefits">Tenure Savings</a></li>
+          <li><a href="javascript:void(0)" onclick="openCartModal()">Rental Calculator</a></li>
+          <li><a href="javascript:void(0)" onclick="openMyRentalsModal()">Order Tracking</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Customer Support</h4>
+        <ul>
+          <li><i class="fa-solid fa-phone" style="margin-right: 6px;"></i> +1-800-FURNI-RENT</li>
+          <li><i class="fa-solid fa-envelope" style="margin-right: 6px;"></i> support@furnirent.com</li>
+          <li><i class="fa-solid fa-location-dot" style="margin-right: 6px;"></i> HQ Furniture Plaza, Suite 400</li>
+          <li><i class="fa-solid fa-clock" style="margin-right: 6px;"></i> Mon-Sat: 9 AM - 8 PM</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 FurniRent Portal. All rights reserved.</div>
+      <div>Designed with Node.js, Express & Universal Storage (MySQL + SQLite)</div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       MODALS
+       ============================================================ -->
+
+  <!-- 1. Quick View Modal with Tenure Calculator -->
+  <div class="modal-backdrop" id="quickViewModal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-couch" style="color: var(--primary);"></i>
+          <span id="qvTitle">Furniture Details</span>
+        </div>
+        <button class="modal-close" onclick="closeModal('quickViewModal')">&times;</button>
+      </div>
+      <div class="modal-body" style="display: grid; grid-template-columns: 1fr 1.1fr; gap: 24px;">
+        <div>
+          <img id="qvImage" src="" alt="" style="width: 100%; height: 280px; object-fit: cover; border-radius: var(--radius-md); margin-bottom: 14px;">
+          <div style="background: var(--light-gray); padding: 14px; border-radius: var(--radius-md); font-size: 0.85rem; line-height: 1.8;">
+            <div><strong>Category:</strong> <span id="qvCategory"></span></div>
+            <div><strong>Dimensions:</strong> <span id="qvDimensions"></span></div>
+            <div><strong>Material:</strong> <span id="qvMaterial"></span></div>
+            <div><strong>Availability:</strong> <span id="qvStock" style="font-weight: 700; color: var(--success);"></span></div>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 8px;">Description</h4>
+          <p id="qvDesc" style="font-size: 0.9rem; color: var(--slate); margin-bottom: 16px; line-height: 1.6;"></p>
+
+          <div style="background: var(--light-gray); padding: 12px 16px; border-radius: var(--radius-md); display: flex; justify-content: space-between; margin-bottom: 16px;">
+            <div>
+              <span style="font-size: 0.75rem; color: var(--muted); font-weight: 600;">Monthly Rent</span>
+              <div id="qvMonthlyRate" style="font-size: 1.25rem; font-weight: 800; color: var(--primary);"></div>
+            </div>
+            <div style="text-align: right;">
+              <span style="font-size: 0.75rem; color: var(--muted); font-weight: 600;">Refundable Deposit</span>
+              <div id="qvDeposit" style="font-size: 1.1rem; font-weight: 700; color: var(--dark);"></div>
+            </div>
+          </div>
+
+          <!-- Tenure Simulator -->
+          <h5 style="font-size: 0.85rem; font-weight: 700; color: var(--slate); margin-bottom: 8px;">
+            Choose Tenure & See Savings:
+          </h5>
+          <div class="tenure-pill-group" id="qvTenureGroup" style="margin-bottom: 14px;">
+            <div class="tenure-pill" data-months="3" onclick="updateQuickViewCalc(3)">
+              <div class="tenure-pill-duration" style="color: var(--dark);">3 Months</div>
+              <div class="tenure-pill-discount">5% OFF</div>
+            </div>
+            <div class="tenure-pill active" data-months="6" onclick="updateQuickViewCalc(6)">
+              <div class="tenure-pill-duration" style="color: var(--dark);">6 Months</div>
+              <div class="tenure-pill-discount">10% OFF</div>
+            </div>
+            <div class="tenure-pill" data-months="12" onclick="updateQuickViewCalc(12)">
+              <div class="tenure-pill-duration" style="color: var(--dark);">12+ Months</div>
+              <div class="tenure-pill-discount">15% OFF</div>
+            </div>
+          </div>
+
+          <div style="background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; font-size: 0.85rem; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+              <span style="color: var(--muted);">Gross Rent:</span>
+              <span id="qvCalcGross" style="font-weight: 600;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: var(--success);">
+              <span>Tenure Discount:</span>
+              <span id="qvCalcDiscount" style="font-weight: 600;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+              <span style="color: var(--muted);">Refundable Deposit:</span>
+              <span id="qvCalcDeposit" style="font-weight: 600;"></span>
+            </div>
+            <div style="border-top: 1px solid var(--border); padding-top: 6px; margin-top: 6px; display: flex; justify-content: space-between; font-weight: 800; font-size: 0.95rem;">
+              <span>Total Upfront Amount:</span>
+              <span id="qvCalcTotal" style="color: var(--primary);"></span>
+            </div>
+          </div>
+
+          <button class="btn-primary" style="width: 100%; justify-content: center;" onclick="addCurrentQuickViewToCart()">
+            <i class="fa-solid fa-cart-plus"></i> Add to Rental Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Cart Drawer / Modal -->
+  <div class="modal-backdrop" id="cartModal">
+    <div class="modal-content" style="max-width: 650px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-cart-shopping" style="color: var(--primary);"></i>
+          Your Rental Cart
+        </div>
+        <button class="modal-close" onclick="closeModal('cartModal')">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Empty View -->
+        <div id="cartEmptyView" style="display: none; text-align: center; padding: 40px 20px;">
+          <i class="fa-solid fa-cart-plus" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 16px;"></i>
+          <h4 style="font-weight: 700; margin-bottom: 6px;">Your cart is empty</h4>
+          <p style="color: var(--muted); margin-bottom: 20px;">Add items from our catalog to customize your rental plan.</p>
+          <button class="btn-primary" onclick="closeModal('cartModal'); document.getElementById('catalog-section').scrollIntoView({behavior: 'smooth'});">
+            Browse Catalog
+          </button>
+        </div>
+
+        <!-- Items List -->
+        <div id="cartItemsList" class="cart-items-list"></div>
+
+        <div id="cartFooter">
+          <!-- Order Tenure Selector -->
+          <div class="tenure-selector-box">
+            <div class="tenure-select-title">
+              <span><i class="fa-solid fa-calendar-days"></i> Select Rental Duration:</span>
+              <span style="font-size: 0.8rem; font-weight: 600;">Longer = Bigger Discount</span>
+            </div>
+            <div class="tenure-radio-group" id="cartTenureGroup">
+              <div class="tenure-radio-card" data-months="3" onclick="setCartTenure(3)">
+                <div style="font-weight: 700; color: var(--dark);">3 Months</div>
+                <div style="font-size: 0.75rem; color: var(--success); font-weight: 600;">5% OFF Rent</div>
+              </div>
+              <div class="tenure-radio-card selected" data-months="6" onclick="setCartTenure(6)">
+                <div style="font-weight: 700; color: var(--dark);">6 Months</div>
+                <div style="font-size: 0.75rem; color: var(--success); font-weight: 600;">10% OFF Rent</div>
+              </div>
+              <div class="tenure-radio-card" data-months="12" onclick="setCartTenure(12)">
+                <div style="font-weight: 700; color: var(--dark);">12+ Months</div>
+                <div style="font-size: 0.75rem; color: var(--success); font-weight: 600;">15% OFF Rent</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Billing Breakdown -->
+          <div class="order-summary-box">
+            <div class="summary-line">
+              <span>Monthly Rent Subtotal:</span>
+              <span id="cartMonthlySubtotal" style="font-weight: 600;"></span>
+            </div>
+            <div class="summary-line">
+              <span>Gross Rent for Tenure:</span>
+              <span id="cartGrossRent"></span>
+            </div>
+            <div class="summary-line discount">
+              <span>Tenure Savings Discount:</span>
+              <span id="cartDiscountAmount"></span>
+            </div>
+            <div class="summary-line">
+              <span>100% Refundable Security Deposit:</span>
+              <span id="cartDepositTotal" style="font-weight: 600;"></span>
+            </div>
+            <div class="summary-line">
+              <span>Delivery & On-site Assembly:</span>
+              <span style="color: var(--success); font-weight: 700;">FREE</span>
+            </div>
+            <div class="summary-line grand-total">
+              <span>Total Payable Now:</span>
+              <span id="cartGrandTotal" style="color: var(--primary);"></span>
+            </div>
+            <div class="deposit-notice">
+              <i class="fa-solid fa-circle-info"></i> Security deposit is 100% refunded when items are returned in good order.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-outline" onclick="closeModal('cartModal')">Continue Browsing</button>
+        <button class="btn-primary" id="cartCheckoutBtn" onclick="startCheckout()">
+          <i class="fa-solid fa-arrow-right"></i> Proceed to Checkout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Checkout Modal -->
+  <div class="modal-backdrop" id="checkoutModal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-shield-check" style="color: var(--primary);"></i>
+          Complete Your Rental Booking
+        </div>
+        <button class="modal-close" onclick="closeModal('checkoutModal')">&times;</button>
+      </div>
+
+      <form id="checkoutForm">
+        <div class="modal-body">
+          <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px;">
+            <div>
+              <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 14px; color: var(--dark);">
+                <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i> 1. Delivery & Contact Details
+              </h4>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Full Name *</label>
+                  <input type="text" id="coName" class="form-control" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Contact Phone *</label>
+                  <input type="tel" id="coPhone" class="form-control" required placeholder="+91 98765 43210">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Complete Delivery Address *</label>
+                <textarea id="coAddress" class="form-control" rows="3" required placeholder="Flat/House No., Building Name, Street, Landmark, City & Pincode"></textarea>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Preferred Delivery Date</label>
+                  <input type="date" id="coDeliveryDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Delivery Instructions (Optional)</label>
+                  <input type="text" id="coNotes" class="form-control" placeholder="e.g. Ring bell, use service elevator">
+                </div>
+              </div>
+
+              <h4 style="font-size: 1.05rem; font-weight: 700; margin: 18px 0 12px; color: var(--dark);">
+                <i class="fa-solid fa-credit-card" style="color: var(--primary);"></i> 2. Payment Method
+              </h4>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <label style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; background: #fff;">
+                  <input type="radio" name="paymentMethod" value="card" checked>
+                  <div>
+                    <div style="font-weight: 700; font-size: 0.9rem;">Credit / Debit Card</div>
+                    <div style="font-size: 0.75rem; color: var(--muted);">Visa, Mastercard, RuPay</div>
+                  </div>
+                </label>
+
+                <label style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; background: #fff;">
+                  <input type="radio" name="paymentMethod" value="upi">
+                  <div>
+                    <div style="font-weight: 700; font-size: 0.9rem;">UPI / QR Code</div>
+                    <div style="font-size: 0.75rem; color: var(--muted);">GPay, PhonePe, Paytm</div>
+                  </div>
+                </label>
+
+                <label style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; background: #fff;">
+                  <input type="radio" name="paymentMethod" value="netbanking">
+                  <div>
+                    <div style="font-weight: 700; font-size: 0.9rem;">Net Banking</div>
+                    <div style="font-size: 0.75rem; color: var(--muted);">All Major Banks</div>
+                  </div>
+                </label>
+
+                <label style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; background: #fff;">
+                  <input type="radio" name="paymentMethod" value="cod">
+                  <div>
+                    <div style="font-weight: 700; font-size: 0.9rem;">Pay on Delivery</div>
+                    <div style="font-size: 0.75rem; color: var(--muted);">Card or UPI upon setup</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Order Summary Side Panel -->
+            <div>
+              <div style="background: var(--light-gray); border-radius: var(--radius-md); padding: 18px;">
+                <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;">Order Summary</h4>
+                <div style="font-size: 0.88rem; line-height: 1.8;">
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--muted);">Package:</span>
+                    <span id="coSummaryItems" style="font-weight: 600;"></span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--muted);">Security Deposit:</span>
+                    <span id="coSummaryDeposit" style="font-weight: 600;"></span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--muted);">Delivery & Setup:</span>
+                    <span style="color: var(--success); font-weight: 700;">FREE</span>
+                  </div>
+                  <div style="border-top: 1px solid #cbd5e1; margin-top: 10px; padding-top: 10px; display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 800;">
+                    <span>Total Amount:</span>
+                    <span id="coSummaryTotal" style="color: var(--primary);"></span>
+                  </div>
+                </div>
+
+                <div style="background: #fff; border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 10px; margin-top: 14px; font-size: 0.78rem; color: var(--slate);">
+                  <i class="fa-solid fa-lock" style="color: var(--primary);"></i> 256-Bit SSL Encrypted & Protected Rental Contract.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" onclick="closeModal('checkoutModal')">Back</button>
+          <button type="submit" class="btn-primary" id="btnPlaceOrder">
+            <i class="fa-solid fa-shield-halved"></i> Confirm & Book Rental
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Order Confirmation Modal -->
+  <div class="modal-backdrop" id="confirmationModal">
+    <div class="modal-content" style="max-width: 520px; text-align: center;">
+      <div class="modal-body" style="padding: 40px 30px;">
+        <div style="width: 72px; height: 72px; background: var(--success-bg); color: var(--success); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 20px;">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <h3 style="font-size: 1.6rem; font-weight: 800; color: var(--dark); margin-bottom: 8px;">Rental Confirmed!</h3>
+        <p style="color: var(--muted); font-size: 0.95rem; margin-bottom: 24px;">Your furniture rental booking has been registered successfully.</p>
+
+        <div style="background: var(--light-gray); border-radius: var(--radius-md); padding: 20px; text-align: left; margin-bottom: 24px; font-size: 0.9rem; line-height: 1.8;">
+          <div><strong>Rental Order Code:</strong> <span id="confRentalCode" style="font-weight: 800; color: var(--primary); font-size: 1.05rem;"></span></div>
+          <div><strong>Duration:</strong> <span id="confTenure"></span> (<span id="confStartDate"></span> to <span id="confEndDate"></span>)</div>
+          <div><strong>Total Paid:</strong> <span id="confTotal" style="font-weight: 700;"></span></div>
+          <div><strong>Delivery Address:</strong> <span id="confAddress"></span></div>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: center;">
+          <button class="btn-outline" onclick="closeAllModals();">Continue Shopping</button>
+          <button class="btn-primary" onclick="closeAllModals(); openMyRentalsModal();">
+            <i class="fa-solid fa-box"></i> View in My Rentals
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. My Rentals Modal (Customer Order Portal) -->
+  <div class="modal-backdrop" id="myRentalsModal">
+    <div class="modal-content wide">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-boxes-stacked" style="color: var(--primary);"></i>
+          My Rental Subscriptions
+        </div>
+        <button class="modal-close" onclick="closeModal('myRentalsModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="myRentalsList">
+          <!-- Dynamically loaded rentals -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Admin Portal Modal -->
+  <div class="modal-backdrop" id="adminModal">
+    <div class="modal-content extra-wide">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-gauge-high" style="color: var(--primary);"></i>
+          Administrator Control Panel
+        </div>
+        <button class="modal-close" onclick="closeModal('adminModal')">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- KPI Metric Cards -->
+        <div class="admin-metrics-grid">
+          <div class="metric-card">
+            <div class="metric-icon emerald"><i class="fa-solid fa-sack-dollar"></i></div>
+            <div>
+              <div class="metric-label">Total Revenue</div>
+              <div class="metric-value" id="statTotalRevenue">₹0.00</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon blue"><i class="fa-solid fa-couch"></i></div>
+            <div>
+              <div class="metric-label">Active Subscriptions</div>
+              <div class="metric-value" id="statActiveRentals">0</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon amber"><i class="fa-solid fa-clock"></i></div>
+            <div>
+              <div class="metric-label">Pending Approval</div>
+              <div class="metric-value" id="statPendingRentals">0</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon purple"><i class="fa-solid fa-boxes-stacked"></i></div>
+            <div>
+              <div class="metric-label">Inventory Items</div>
+              <div class="metric-value" id="statTotalItems">0</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon blue"><i class="fa-solid fa-users"></i></div>
+            <div>
+              <div class="metric-label">Registered Customers</div>
+              <div class="metric-value" id="statTotalUsers">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Tab Navigation -->
+        <div class="admin-tabs">
+          <button class="admin-tab-btn active" data-tab="rentals" onclick="switchAdminTab('rentals')">
+            <i class="fa-solid fa-clipboard-list"></i> Manage Rentals
+          </button>
+          <button class="admin-tab-btn" data-tab="inventory" onclick="switchAdminTab('inventory')">
+            <i class="fa-solid fa-warehouse"></i> Inventory Manager
+          </button>
+          <button class="admin-tab-btn" data-tab="users" onclick="switchAdminTab('users')">
+            <i class="fa-solid fa-user-group"></i> Customers
+          </button>
+        </div>
+
+        <!-- Tab 1: Rentals Management -->
+        <div id="adminTabRentals">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <select id="adminRentalFilterStatus" class="form-control" style="width: 180px;" onchange="loadAdminRentals()">
+                <option value="all">All Statuses</option>
+                <option value="pending">⏳ Pending Approval</option>
+                <option value="approved">📋 Approved</option>
+                <option value="active">🚚 Active (In-Use)</option>
+                <option value="returned">🔄 Returned</option>
+                <option value="cancelled">❌ Cancelled</option>
+              </select>
+              <input type="text" id="adminRentalSearchInput" class="form-control" placeholder="Search order code or customer..." style="width: 260px;" oninput="loadAdminRentals()">
+            </div>
+            <button class="btn-outline" onclick="loadAdminRentals()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+          </div>
+
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Tenure</th>
+                  <th>Items</th>
+                  <th>Total Amount</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminRentalsTableBody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 2: Inventory Management -->
+        <div id="adminTabInventory" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h4 style="font-weight: 700;">Furniture Catalog Inventory</h4>
+            <button class="btn-primary" onclick="openAddFurnitureModal()">
+              <i class="fa-solid fa-plus"></i> Add New Furniture Item
+            </button>
+          </div>
+
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Item Details</th>
+                  <th>Category</th>
+                  <th>Monthly Rent</th>
+                  <th>Deposit</th>
+                  <th>Stock Quantity</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminInventoryTableBody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 3: Customer Registry -->
+        <div id="adminTabUsers" style="display: none;">
+          <h4 style="font-weight: 700; margin-bottom: 16px;">Registered Customer Registry</h4>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Customer Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Phone</th>
+                  <th>Total Orders</th>
+                  <th>Total Spent</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTableBody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Furniture Add / Edit Form Modal -->
+  <div class="modal-backdrop" id="furnitureFormModal">
+    <div class="modal-content" style="max-width: 650px;">
+      <div class="modal-header">
+        <div class="modal-title" id="furnModalTitle">Add New Furniture Item</div>
+        <button class="modal-close" onclick="closeModal('furnitureFormModal')">&times;</button>
+      </div>
+
+      <form id="furnForm" onsubmit="handleFurnitureSubmit(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Item Name *</label>
+              <input type="text" id="furnName" class="form-control" required placeholder="e.g. Nordic Velvet Sofa">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category *</label>
+              <select id="furnCategory" class="form-control" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Monthly Rate (₹) *</label>
+              <input type="number" id="furnMonthlyRate" class="form-control" step="0.01" required placeholder="799.00">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Security Deposit (₹) *</label>
+              <input type="number" id="furnDeposit" class="form-control" step="0.01" required placeholder="1500.00">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Stock Quantity *</label>
+              <input type="number" id="furnStock" class="form-control" required placeholder="5">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dimensions</label>
+              <input type="text" id="furnDimensions" class="form-control" placeholder="e.g. 82W x 34D x 32H">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Material</label>
+              <input type="text" id="furnMaterial" class="form-control" placeholder="e.g. Velvet & Solid Oak">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Image URL</label>
+              <input type="url" id="furnImage" class="form-control" placeholder="https://images.unsplash.com/...">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea id="furnDesc" class="form-control" rows="3" placeholder="Detailed product specifications..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer;">
+              <input type="checkbox" id="furnFeatured">
+              <span>Display on Homepage as Featured Product</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" onclick="closeModal('furnitureFormModal')">Cancel</button>
+          <button type="submit" class="btn-primary">Save Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 8. Admin Rental Details Modal -->
+  <div class="modal-backdrop" id="adminRentalDetailsModal">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <div class="modal-title">Rental Order Details</div>
+        <button class="modal-close" onclick="closeModal('adminRentalDetailsModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="adminRentalDetailsBody"></div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="closeModal('adminRentalDetailsModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Auth Modal (Login / Register / Quick Demo) -->
+  <div class="modal-backdrop" id="authModal">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-user-lock" style="color: var(--primary);"></i>
+          Account Access
+        </div>
+        <button class="modal-close" onclick="closeModal('authModal')">&times;</button>
+      </div>
+
+      <!-- Quick Demo Login Bar -->
+      <div style="background: var(--light-gray); padding: 14px 20px; border-bottom: 1px solid var(--border);">
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 8px;">
+          ⚡ Quick 1-Click Demo Login
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <button class="btn-outline" style="padding: 6px 10px; font-size: 0.8rem;" onclick="loginAsDemo('customer')">
+            <i class="fa-solid fa-user"></i> Customer (John)
+          </button>
+          <button class="btn-outline" style="padding: 6px 10px; font-size: 0.8rem;" onclick="loginAsDemo('admin')">
+            <i class="fa-solid fa-shield"></i> Admin Account
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div style="display: flex; border-bottom: 1px solid var(--border);">
+        <button id="tabLoginBtn" class="admin-tab-btn active" style="flex: 1; text-align: center;" onclick="switchAuthTab('login')">
+          Sign In
+        </button>
+        <button id="tabRegBtn" class="admin-tab-btn" style="flex: 1; text-align: center;" onclick="switchAuthTab('register')">
+          Register
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Sign In Form -->
+        <div id="loginSection">
+          <form id="loginForm">
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" id="loginEmail" class="form-control" required placeholder="john@example.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" id="loginPassword" class="form-control" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;">
+              Sign In to FurniRent
+            </button>
+          </form>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerSection" style="display: none;">
+          <form id="registerForm">
+            <div class="form-group">
+              <label class="form-label">Full Name *</label>
+              <input type="text" id="regName" class="form-control" required placeholder="Sarah Connor">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address *</label>
+              <input type="email" id="regEmail" class="form-control" required placeholder="sarah@example.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password * (Min 6 chars)</label>
+              <input type="password" id="regPassword" class="form-control" required minlength="6" placeholder="••••••••">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Phone</label>
+                <input type="tel" id="regPhone" class="form-control" placeholder="+91 98765 43210">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Address</label>
+                <input type="text" id="regAddress" class="form-control" placeholder="City & Area">
+              </div>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;">
+              Create New Account
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
