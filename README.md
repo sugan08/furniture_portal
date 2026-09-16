@@ -2,6 +2,9 @@
 
 A full-stack, responsive web application designed for renting premium home and office furniture with flexible rental durations, progressive tenure discounts, transparent security deposits, and an integrated administrator management portal.
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Online-success?style=for-the-badge&logo=cloudflare)](https://smtp-limited-rich-being.trycloudflare.com)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/sugan08/furniture_portal)
+
 ---
 
 ## 🌟 Key Features
